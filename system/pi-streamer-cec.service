@@ -1,0 +1,11 @@
+[Unit]
+Description=Pi Streamer: register on HDMI-CEC and turn the TV on
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/pi-streamer/system/cec-setup.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
