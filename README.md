@@ -26,7 +26,7 @@ remote over HDMI-CEC.
 
    ```bash
    sudo apt-get install -y git
-   git clone https://github.com/evanakat/<repo>.git pi-streamer
+   git clone https://github.com/evanakat/Raspberry-Pi-Streamer.git pi-streamer
    cd pi-streamer
    sudo ./install.sh
    sudo reboot
