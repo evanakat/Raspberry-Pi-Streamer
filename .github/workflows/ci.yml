@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Shell script lint
+        run: |
+          shellcheck --severity=warning install.sh uninstall.sh \
+            system/*.sh system/pi-streamer-reload system/pi-streamer-doctor
+      - name: Shipped site list is valid
+        run: python system/build_sites.py config/sites.json /tmp/sites.js

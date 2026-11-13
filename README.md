@@ -15,7 +15,7 @@ game, and sign in when ESPN asks. The Pi remembers the sign-in after that.
 - [x] Step 1: base system (auto-login, 1080p, Chromium kiosk, HDMI-CEC)
 - [x] Step 2: editable site list
 - [x] Step 3: menu with remote control
-- [ ] Step 4: one-command installer polish
+- [x] Step 4: installer polish (checks, health check, uninstall, CI)
 
 ## What you need
 
@@ -38,7 +38,13 @@ game, and sign in when ESPN asks. The Pi remembers the sign-in after that.
    sudo reboot
    ```
 
-After the reboot the TV should turn on, switch to the Pi, and show the menu.
+Before rebooting, `pi-streamer-doctor` checks each part (software, site list,
+services, TV connection, CEC, internet) and tells you what to fix.
+
+After the reboot the TV should turn on, switch to the Pi, and open ESPN Watch.
+
+To remove Pi Streamer and go back to a normal console boot:
+`sudo ./uninstall.sh` (add `--purge` to also delete your site list).
 
 ## Using the TV remote
 
@@ -84,6 +90,8 @@ never overwrites your edited list.
 SSH logins are not affected by the kiosk; it only runs on the physical console.
 
 ## Troubleshooting
+
+- **Start here:** run `pi-streamer-doctor`.
 
 - **TV doesn't turn on or switch input:** check CEC is enabled on the TV, the
   cable is in HDMI 0, then run `sudo systemctl status pi-streamer-cec`.
