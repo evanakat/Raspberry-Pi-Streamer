@@ -18,8 +18,10 @@ step() { printf '\n==> %s\n' "$*"; }
 
 step "Installing packages"
 apt-get update
-apt-get install -y --no-install-recommends cage v4l-utils python3 fonts-dejavu-core
+apt-get install -y --no-install-recommends cage v4l-utils python3 python3-evdev fonts-dejavu-core
 apt-get install -y chromium || apt-get install -y chromium-browser
+# Widevine lets Chromium play DRM-protected streams such as ESPN's.
+apt-get install -y libwidevinecdm0 || echo "Warning: libwidevinecdm0 not available; protected streams may not play." >&2
 
 step "Copying files to $APP_DIR"
 mkdir -p "$APP_DIR"
@@ -56,8 +58,9 @@ fi
 
 step "Enabling the HDMI-CEC service (TV power and remote)"
 install -m 644 "$SRC_DIR/system/pi-streamer-cec.service" /etc/systemd/system/
+install -m 644 "$SRC_DIR/system/pi-streamer-remote.service" /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable pi-streamer-cec.service
+systemctl enable pi-streamer-cec.service pi-streamer-remote.service
 
 step "Starting the menu automatically on login"
 PROFILE="$TARGET_HOME/.bash_profile"
