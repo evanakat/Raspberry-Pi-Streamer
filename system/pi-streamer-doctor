@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Checks each part of Pi Streamer and says what to fix. Safe to run any time:
+#   pi-streamer-doctor
+set -uo pipefail
+
+APP_DIR="${APP_DIR:-/opt/pi-streamer}"
+SITES="${SITES:-/etc/pi-streamer/sites.json}"
+FAILS=0
+
+ok()   { printf '  [ ok ] %s\n' "$*"; }
+bad()  { printf '  [FAIL] %s\n' "$*"; FAILS=$((FAILS + 1)); }
+note() { printf '  [note] %s\n' "$*"; }
+
+echo "Pi Streamer check"
+
+# Software
+if command -v chromium >/dev/null || command -v chromium-browser >/dev/null; then ok "Chromium installed"; else bad "Chromium missing: re-run sudo ./install.sh"; fi
+if command -v cage >/dev/null; then ok "cage (kiosk window) installed"; else bad "cage missing: re-run sudo ./install.sh"; fi
+if dpkg -s libwidevinecdm0 >/dev/null 2>&1; then ok "Widevine installed (needed for ESPN streams)"; else bad "Widevine missing: sudo apt-get install libwidevinecdm0"; fi
+if python3 -c 'import evdev' 2>/dev/null; then ok "python3-evdev installed"; else bad "python3-evdev missing: sudo apt-get install python3-evdev"; fi
+
+# Site list
+if [ -f "$SITES" ]; then
+  OUT="$(python3 "$APP_DIR/system/build_sites.py" "$SITES" /dev/null 2>&1)"
+  if printf '%s' "$OUT" | grep -q 'pi-streamer: [^0-9]'; then
+    bad "Problems in $SITES:"; printf '%s\n' "$OUT" | sed 's/^/         /'
+  else
+    ok "Site list OK ($(printf '%s' "$OUT" | grep -o '[0-9]* site(s)'))"
+  fi
+else
+  bad "$SITES missing: re-run sudo ./install.sh"
+fi
+
+# Services
+for svc in pi-streamer-cec pi-streamer-remote; do
+  if systemctl is-enabled --quiet "$svc" 2>/dev/null; then
+    if [ "$svc" = pi-streamer-remote ] && ! systemctl is-active --quiet "$svc"; then
+      bad "$svc enabled but not running: sudo journalctl -u $svc -n 20"
+    else
+      ok "$svc enabled"
+    fi
+  else
+    bad "$svc not enabled: re-run sudo ./install.sh"
+  fi
+done
+
+# TV connection
+HDMI_STATUS="$(cat /sys/class/drm/card*-HDMI-A-1/status 2>/dev/null | head -1)"
+if [ "$HDMI_STATUS" = "connected" ]; then ok "TV detected on HDMI 0"; else bad "No TV on HDMI 0 (the port next to USB-C power). Status: ${HDMI_STATUS:-unknown}"; fi
+if [ -e /dev/cec0 ]; then
+  ok "HDMI-CEC device present"
+  PHYS="$(cec-ctl -d /dev/cec0 2>/dev/null | awk -F': *' '/Physical Address/ {print $2; exit}')"
+  if [ -n "$PHYS" ] && [ "$PHYS" != "f.f.f.f" ]; then ok "TV answers on CEC (address $PHYS)"; else bad "TV not answering on CEC: turn on CEC in the TV settings (Anynet+, Bravia Sync, SimpLink...)"; fi
+else
+  bad "/dev/cec0 missing: is the TV on HDMI 0?"
+fi
+
+# Auto-login and kiosk
+if grep -q '# pi-streamer kiosk' /home/*/.bash_profile 2>/dev/null; then ok "Kiosk starts on login"; else bad "Kiosk not set to start: re-run sudo ./install.sh"; fi
+
+# Internet
+if command -v curl >/dev/null; then
+  if curl -fsS -m 8 -A "Mozilla/5.0" -o /dev/null https://www.espn.com/watch/ 2>/dev/null; then ok "Can reach ESPN Watch"; else bad "Can't reach https://www.espn.com/watch/ (check Wi-Fi)"; fi
+else
+  note "curl not installed; skipped the internet check"
+fi
+
+echo
+if [ "$FAILS" -eq 0 ]; then echo "All good."; else echo "$FAILS problem(s) found."; fi
+exit $(( FAILS > 0 ))
