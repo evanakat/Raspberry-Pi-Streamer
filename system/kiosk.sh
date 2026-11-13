@@ -37,4 +37,5 @@ exec cage -d -s -- "$BROWSER" \
   --check-for-update-interval=31536000 \
   --autoplay-policy=no-user-gesture-required \
   --start-fullscreen \
+  --enable-spatial-navigation \
   "file://${APP_DIR}/menu/index.html"

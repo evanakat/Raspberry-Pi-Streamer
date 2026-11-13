@@ -8,7 +8,7 @@ remote over HDMI-CEC.
 
 - [x] Step 1: base system (auto-login, 1080p, Chromium kiosk, HDMI-CEC)
 - [x] Step 2: editable site list
-- [ ] Step 3: menu with remote control
+- [x] Step 3: menu with remote control
 - [ ] Step 4: one-command installer polish
 
 ## What you need
@@ -34,6 +34,20 @@ remote over HDMI-CEC.
 
 After the reboot the TV should turn on, switch to the Pi, and show the menu.
 
+## Using the TV remote
+
+| Button | What it does |
+| --- | --- |
+| Arrows | Move between tiles; on websites, move between links and buttons |
+| OK / Select | Open the highlighted tile or link |
+| Back / Return / Exit | Go back a page |
+| Home / Menu | Return to the Pi Streamer menu from anywhere |
+| Play / Pause | Play or pause the video |
+
+Button names vary by TV. If one does nothing, run `sudo systemctl stop pi-streamer-remote`,
+then `cec-ctl -d /dev/cec0 --monitor`, press it, and note what the TV sends. The
+mapping lives in `KEYMAP` in `system/remote.py`.
+
 ## Changing the sites in the menu
 
 The menu shows whatever is in `/etc/pi-streamer/sites.json` on the Pi, in that
@@ -57,6 +71,7 @@ never overwrites your edited list.
 | TV control | `system/cec-setup.sh` | Registers as a CEC playback device, wakes the TV and switches its input |
 | Site list | `config/sites.json`, `system/build_sites.py` | Default list, and the script that checks it and feeds it to the menu |
 | Menu | `menu/index.html` | The page the kiosk shows |
+| Remote | `system/remote.py` | Turns TV remote buttons into keys the browser understands |
 
 SSH logins are not affected by the kiosk; it only runs on the physical console.
 
