@@ -24,7 +24,18 @@ apt-get install -y chromium || apt-get install -y chromium-browser
 step "Copying files to $APP_DIR"
 mkdir -p "$APP_DIR"
 cp -r "$SRC_DIR/system" "$SRC_DIR/menu" "$APP_DIR/"
-chmod +x "$APP_DIR"/system/*.sh
+chmod +x "$APP_DIR"/system/*.sh "$APP_DIR"/system/*.py "$APP_DIR"/system/pi-streamer-reload
+mkdir -p "$APP_DIR/menu/generated"
+chown "$TARGET_USER:$TARGET_USER" "$APP_DIR/menu/generated"
+ln -sf "$APP_DIR/system/pi-streamer-reload" /usr/local/bin/pi-streamer-reload
+
+step "Installing the editable site list"
+mkdir -p /etc/pi-streamer
+if [ -f /etc/pi-streamer/sites.json ]; then
+  echo "Keeping your existing /etc/pi-streamer/sites.json"
+else
+  install -m 644 "$SRC_DIR/config/sites.json" /etc/pi-streamer/sites.json
+fi
 
 step "Giving $TARGET_USER access to the display and input devices"
 usermod -aG video,render,input "$TARGET_USER"

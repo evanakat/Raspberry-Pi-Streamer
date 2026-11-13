@@ -12,6 +12,11 @@ if [ -z "$BROWSER" ]; then
   exit 1
 fi
 
+# Rebuild the menu's site list from the editable config.
+python3 "${APP_DIR}/system/build_sites.py" \
+  "${SITES_CONFIG:-/etc/pi-streamer/sites.json}" \
+  "${APP_DIR}/menu/generated/sites.js" || true
+
 # If Chromium was killed (power cut, crash), clear the "restore pages?" prompt.
 PREFS="${PROFILE_DIR}/Default/Preferences"
 if [ -f "$PREFS" ]; then

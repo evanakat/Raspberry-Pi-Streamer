@@ -7,7 +7,7 @@ remote over HDMI-CEC.
 ## Status
 
 - [x] Step 1: base system (auto-login, 1080p, Chromium kiosk, HDMI-CEC)
-- [ ] Step 2: editable site list
+- [x] Step 2: editable site list
 - [ ] Step 3: menu with remote control
 - [ ] Step 4: one-command installer polish
 
@@ -34,6 +34,19 @@ remote over HDMI-CEC.
 
 After the reboot the TV should turn on, switch to the Pi, and show the menu.
 
+## Changing the sites in the menu
+
+The menu shows whatever is in `/etc/pi-streamer/sites.json` on the Pi, in that
+order. Each entry needs a `name` and a `url`; `category` and `note` are optional.
+
+```json
+{ "name": "Tubi Live", "url": "https://tubitv.com/live", "category": "Live channels", "note": "FOX Sports and more" }
+```
+
+After editing, run `sudo pi-streamer-reload`. If you make a typo, the menu
+still loads and tells you which entry was skipped. Re-running `install.sh`
+never overwrites your edited list.
+
 ## How it works
 
 | Piece | File | What it does |
@@ -42,6 +55,7 @@ After the reboot the TV should turn on, switch to the Pi, and show the menu.
 | Kiosk | `system/kiosk.sh` | Runs Chromium full-screen inside the `cage` compositor; restarts it if it exits |
 | 1080p | `install.sh` | Adds `video=HDMI-A-1:1920x1080M@60` to `cmdline.txt` |
 | TV control | `system/cec-setup.sh` | Registers as a CEC playback device, wakes the TV and switches its input |
+| Site list | `config/sites.json`, `system/build_sites.py` | Default list, and the script that checks it and feeds it to the menu |
 | Menu | `menu/index.html` | The page the kiosk shows |
 
 SSH logins are not affected by the kiosk; it only runs on the physical console.

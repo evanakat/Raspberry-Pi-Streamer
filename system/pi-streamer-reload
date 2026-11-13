@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Reload the menu after editing /etc/pi-streamer/sites.json.
+# The kiosk loop restarts Chromium, which rebuilds the site list first.
+python3 /opt/pi-streamer/system/build_sites.py /etc/pi-streamer/sites.json /dev/null >/dev/null || exit 1
+pkill -f 'pi-streamer-chromium' || true
+echo "Menu reloading."
