@@ -6,15 +6,84 @@
   <style>
     html, body { margin: 0; height: 100%; background: #0b0f14; color: #e8eef5;
       font-family: "DejaVu Sans", sans-serif; }
-    body { display: grid; place-items: center; text-align: center; }
-    h1 { font-size: 64px; margin: 0 0 16px; }
-    p { font-size: 28px; color: #9fb0c2; }
+    main { padding: 64px 96px; }
+    h1 { font-size: 56px; margin: 0 0 8px; }
+    .hint { font-size: 24px; color: #9fb0c2; margin: 0 0 40px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+    .tile { background: #16202b; border: 4px solid transparent; border-radius: 16px;
+      padding: 28px 32px; min-height: 140px; outline: none; }
+    .tile:focus { border-color: #4da3ff; background: #1d2c3c; }
+    .tile .cat { font-size: 18px; color: #4da3ff; text-transform: uppercase; letter-spacing: 1px; }
+    .tile .name { font-size: 36px; font-weight: bold; margin: 8px 0; }
+    .tile .note { font-size: 20px; color: #9fb0c2; }
+    .warn { margin-top: 40px; font-size: 20px; color: #ffb454; }
+    .empty { font-size: 28px; color: #ffb454; }
   </style>
 </head>
 <body>
-  <div>
+  <main>
     <h1>Pi Streamer</h1>
-    <p>Base system is working. The channel menu arrives in step 3.</p>
-  </div>
+    <p class="hint">Use the arrow buttons to choose, then press OK.</p>
+    <div class="grid" id="grid"></div>
+    <div class="warn" id="warn"></div>
+  </main>
+  <script src="generated/sites.js"></script>
+  <script>
+    const data = window.PI_STREAMER || { sites: [], warnings: ["Site list not built yet"] };
+    const grid = document.getElementById("grid");
+    const COLS = 3;
+
+    if (data.sites.length === 0) {
+      grid.outerHTML = '<p class="empty">No sites to show. Edit /etc/pi-streamer/sites.json, then run: sudo pi-streamer-reload</p>';
+    }
+
+    data.sites.forEach((site, i) => {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.tabIndex = 0;
+      tile.dataset.index = i;
+      for (const [cls, text] of [["cat", site.category], ["name", site.name], ["note", site.note]]) {
+        if (!text) continue;
+        const el = document.createElement("div");
+        el.className = cls;
+        el.textContent = text;
+        tile.appendChild(el);
+      }
+      tile.addEventListener("click", () => open(site));
+      grid.appendChild(tile);
+    });
+
+    if (data.warnings.length) {
+      document.getElementById("warn").textContent =
+        "Some entries in sites.json were skipped: " + data.warnings.join("; ");
+    }
+
+    function open(site) {
+      try { localStorage.setItem("lastIndex", String(data.sites.indexOf(site))); } catch (e) {}
+      location.href = site.url;
+    }
+
+    const tiles = () => Array.from(document.querySelectorAll(".tile"));
+    function focusAt(i) {
+      const t = tiles();
+      if (t.length) t[Math.max(0, Math.min(t.length - 1, i))].focus();
+    }
+
+    let start = 0;
+    try { start = parseInt(localStorage.getItem("lastIndex") || "0", 10) || 0; } catch (e) {}
+    focusAt(start);
+
+    document.addEventListener("keydown", (e) => {
+      const cur = Number(document.activeElement?.dataset?.index ?? -1);
+      const moves = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -COLS, ArrowDown: COLS };
+      if (e.key in moves) {
+        e.preventDefault();
+        focusAt(cur < 0 ? 0 : cur + moves[e.key]);
+      } else if (e.key === "Enter" && cur >= 0) {
+        e.preventDefault();
+        open(data.sites[cur]);
+      }
+    });
+  </script>
 </body>
 </html>
