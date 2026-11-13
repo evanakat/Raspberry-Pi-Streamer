@@ -30,6 +30,11 @@
   <script src="generated/sites.js"></script>
   <script>
     const data = window.PI_STREAMER || { sites: [], warnings: ["Site list not built yet"] };
+    // With a single site there is nothing to choose: open it straight away.
+    if (data.sites.length === 1 && data.warnings.length === 0) {
+      location.replace(data.sites[0].url);
+    }
+
     const grid = document.getElementById("grid");
     const COLS = 3;
 

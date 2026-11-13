@@ -1,8 +1,14 @@
 # Pi Streamer
 
-Turns a Raspberry Pi 4 into a sports box for your TV. It boots straight into a
-full-screen menu of free streaming sites that you drive with your normal TV
-remote over HDMI-CEC.
+Turns a Raspberry Pi 4 into a sports box for your TV. It boots straight into
+[ESPN Watch](https://www.espn.com/watch/) full screen, and you scroll and pick
+a game with your normal TV remote over HDMI-CEC.
+
+## Signing in to ESPN (once)
+
+Most live games on ESPN Watch need a sign-in: either your TV provider, or an
+ESPN subscription. Plug a USB keyboard into the Pi the first time, open a
+game, and sign in when ESPN asks. The Pi remembers the sign-in after that.
 
 ## Status
 
@@ -52,6 +58,8 @@ mapping lives in `KEYMAP` in `system/remote.py`.
 
 The menu shows whatever is in `/etc/pi-streamer/sites.json` on the Pi, in that
 order. Each entry needs a `name` and a `url`; `category` and `note` are optional.
+If the list has only one entry (the default is ESPN Watch), the Pi skips the
+menu and opens that site directly.
 
 ```json
 { "name": "Tubi Live", "url": "https://tubitv.com/live", "category": "Live channels", "note": "FOX Sports and more" }

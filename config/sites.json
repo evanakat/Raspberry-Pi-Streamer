@@ -1,41 +1,11 @@
 {
-  "_help": "Each entry becomes a tile in the menu, in this order. name and url are required; category and note are optional. On the Pi this file lives at /etc/pi-streamer/sites.json. After editing, reload the menu with: sudo pi-streamer-reload",
+  "_help": "Each entry becomes a tile in the menu. If there is only one entry, the Pi skips the menu and opens that site directly. name and url are required; category and note are optional. On the Pi this file lives at /etc/pi-streamer/sites.json. After editing, run: sudo pi-streamer-reload",
   "sites": [
     {
-      "name": "Pluto TV",
-      "url": "https://pluto.tv/live-tv",
-      "category": "Live channels",
-      "note": "Free live channels incl. NFL Channel, CBS Sports HQ, Fox Sports"
-    },
-    {
-      "name": "Tubi Live",
-      "url": "https://tubitv.com/live",
-      "category": "Live channels",
-      "note": "Free live sports channels incl. FOX Sports"
-    },
-    {
-      "name": "The Roku Channel",
-      "url": "https://therokuchannel.roku.com/live-tv",
-      "category": "Live channels",
-      "note": "Free live TV guide with a sports section"
-    },
-    {
-      "name": "Samsung TV Plus",
-      "url": "https://www.samsungtvplus.com/",
-      "category": "Live channels",
-      "note": "Free live channels in the browser"
-    },
-    {
-      "name": "Xumo Play",
-      "url": "https://play.xumo.com/live-guide",
-      "category": "Live channels",
-      "note": "Free live guide with sports channels"
-    },
-    {
-      "name": "CBS Sports HQ",
-      "url": "https://www.cbssports.com/live/",
-      "category": "Sports news",
-      "note": "Free 24/7 sports news and highlights"
+      "name": "ESPN Watch",
+      "url": "https://www.espn.com/watch/",
+      "category": "Live sports",
+      "note": "Live and upcoming games on ESPN"
     }
   ]
 }

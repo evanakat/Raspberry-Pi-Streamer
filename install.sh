@@ -20,6 +20,8 @@ step "Installing packages"
 apt-get update
 apt-get install -y --no-install-recommends cage v4l-utils python3 python3-evdev fonts-dejavu-core
 apt-get install -y chromium || apt-get install -y chromium-browser
+# Widevine lets Chromium play DRM-protected streams such as ESPN's.
+apt-get install -y libwidevinecdm0 || echo "Warning: libwidevinecdm0 not available; protected streams may not play." >&2
 
 step "Copying files to $APP_DIR"
 mkdir -p "$APP_DIR"
